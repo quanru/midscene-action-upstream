@@ -1,14 +1,14 @@
 import { appendFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 
-// Reuse history only from the same repository, workflow and branch. Never trust
+// Reuse history only from the same repository, workflow and explicitly trusted branches. Never trust
 // pull-request artifacts, including same-repository PRs with write permissions.
 export function trustedRun(run, current) {
   return (
     run.repository?.full_name === current.repository &&
     run.head_repository?.full_name === current.repository &&
     run.path === current.workflow &&
-    run.head_branch === current.branch &&
+    (current.branches ?? [current.branch]).includes(run.head_branch) &&
     run.status === 'completed' &&
     ['push', 'schedule', 'workflow_dispatch'].includes(run.event) &&
     /^[a-f0-9]{40}$/.test(run.head_sha ?? '') &&
@@ -62,6 +62,10 @@ async function main() {
     repository: env.GITHUB_REPOSITORY,
     workflow,
     branch: env.GITHUB_REF_NAME,
+    branches: (env.HISTORY_BRANCHES || env.GITHUB_REF_NAME)
+      .split(',')
+      .map((value) => value.trim())
+      .filter(Boolean),
     runId: env.GITHUB_RUN_ID,
     sha: env.GITHUB_SHA,
   };

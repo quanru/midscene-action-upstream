@@ -7,6 +7,9 @@ inputs:
   producer-result:
     description: Test job conclusion, used to distinguish infrastructure failures from passing cases.
     default: success
+  history-branches:
+    description: Comma-separated trusted branches whose ancestor runs may supply history. Defaults to the current branch.
+    default: ${{ github.ref_name }}
 outputs:
   page-url:
     description: Published GitHub Pages URL.
@@ -29,6 +32,7 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
+        HISTORY_BRANCHES: ${{ inputs.history-branches }}
       run: node "$GITHUB_ACTION_PATH/src/history.mjs"
     - name: Download previous Pages artifact
       if: steps.history.outputs.run_id != ''

@@ -96,3 +96,12 @@ test('history paginates runs and artifacts', async () => {
   };
   assert.equal((await findHistory(get, current)).runId, 9);
 });
+
+test('additional history branches require explicit caller trust', () => {
+  const feature = { ...run, head_branch: 'feature' };
+  assert.equal(trustedRun(feature, current), false);
+  assert.equal(
+    trustedRun(feature, { ...current, branches: ['main', 'feature'] }),
+    true,
+  );
+});

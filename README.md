@@ -211,6 +211,8 @@ Missing native HTML leaves the existing site intact. Publication can still run
 after failed tests. One invocation consumes one native test-run artifact.
 
 History is accepted only from completed non-PR runs in the same repository,
-workflow and branch, with commit ancestry verified against the current SHA.
+workflow and current branch, with commit ancestry verified against the current SHA.
+To retain history while moving between trusted branches, pass `history-branches`
+as an explicit comma-separated allowlist. Ancestry checks still apply.
 Do not grant this publishing job to untrusted branches or PRs. No caller-side
 report scripts, checkout or extra package installation are needed.
