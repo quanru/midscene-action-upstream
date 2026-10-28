@@ -163,22 +163,6 @@ jobs:
 
 基于 [Midscene](https://github.com/web-infra-dev/midscene) 和 [Cloudflare Workers](https://workers.cloudflare.com/) 构建。
 
-## GitHub Pages
-
-如需使用专用 GitHub Pages 报告站点，在独立发布 job 中调用
-`web-infra-dev/midscene-action/pages` 子 Action。根 Action 的 Cloudflare 行为不变。
-完整 workflow 示例见 [英文说明](README.md#github-pages)。请固定到包含该子 Action
-的已审核提交；当前发布版本可能尚未包含它。
-
-调用方负责可信触发条件、`github-pages` environment、发布并发锁和权限：
-`contents: read`、`actions: read`、`pages: write`、`id-token: write`。
-先在 Settings → Pages 中选择 GitHub Actions，并提供 Node.js 24。
-传入测试 job 的 `report-artifact-name` 和 `producer-result`，即可发布原生 HTML
-索引及包含每条用例截图、状态、耗时、原生步骤链接的 Summary 表格。
-调用方无需 checkout 或维护报告脚本。
-
-每次调用接收一个原生测试运行产物。保留最近三轮报告，总量不超过 900 MiB；旧链接
-会随清理失效，原始下载产物不变。测试失败后仍可发布；没有完整 HTML 时保留原站点。
-历史只接受同仓库、同 workflow、同分支的已完成非 PR 运行，并验证提交祖先关系。
-切换可信分支时，可用 `history-branches` 显式提供逗号分隔的历史分支白名单，仍校验祖先关系。
-配置缺失会明确失败。发布会替换仓库 Pages 站点，请使用专用报告站点，勿覆盖文档站。
+Cloudflare 发布成功后，Action 会在 Summary 中展示逐条用例表格，包含截图、状态、
+耗时及原生 HTML 报告的步骤链接。失败用例排在前面，没有截图时明确标注，不借用其他
+用例的图片。表格读取原生报告内嵌的数据，图片与报告链接均使用发布后的 Worker 地址。

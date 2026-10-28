@@ -12,7 +12,7 @@
     "format": "rslint . --fix --max-warnings=0 && prettier --write .",
     "check": "pnpm lint && pnpm test",
     "prepare": "husky",
-    "test": "node --test pages/src/*.test.mjs"
+    "test": "node --test src/*.test.mjs"
   },
   "packageManager": "pnpm@10.29.2",
   "devDependencies": {

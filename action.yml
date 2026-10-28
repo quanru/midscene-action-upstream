@@ -131,12 +131,14 @@ runs:
       shell: bash
       env:
         PAGE_URL: ${{ steps.deployment.outputs.preview-deployment-url }}
+        REPORT_FILE: ${{ steps.report.outputs.report-file }}
+        PRODUCER_RESULT: ${{ steps.test.outcome }}
       run: |
         if [[ -z "$PAGE_URL" ]]; then
           echo '::error::Cloudflare uploaded the report but returned no deployment URL. Open Workers & Pages > your Worker > Domains > Worker URL and enable Preview, then rerun the workflow.'
           exit 1
         fi
-        echo "[Open the Midscene Test report ↗]($PAGE_URL)" >> "$GITHUB_STEP_SUMMARY"
+        node "$GITHUB_ACTION_PATH/src/cloudflare-summary.mjs"
 
     - name: Preserve command failure
       if: ${{ !cancelled() && steps.test.outcome == 'failure' }}

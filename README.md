@@ -163,56 +163,8 @@ See the [Contributing Guide](CONTRIBUTING.md).
 
 Built with [Midscene](https://github.com/web-infra-dev/midscene) and [Cloudflare Workers](https://workers.cloudflare.com/).
 
-## GitHub Pages
-
-For a dedicated GitHub Pages report site, use the optional `pages` sub-action in
-an isolated publishing job. The root Action and its Cloudflare behavior are
-unchanged. The caller controls trusted triggers and serializes publication:
-
-```yaml
-publish:
-  needs: test
-  if: >-
-    always() && !cancelled() && github.ref == 'refs/heads/main' &&
-    needs.test.outputs.report-artifact-name != ''
-  runs-on: ubuntu-24.04
-  permissions:
-    contents: read
-    actions: read
-    pages: write
-    id-token: write
-  concurrency:
-    group: midscene-pages
-    cancel-in-progress: false
-  environment:
-    name: github-pages
-    url: ${{ steps.report.outputs.page-url }}
-  steps:
-    - uses: actions/setup-node@v6
-      with:
-        node-version: '24'
-    - id: report
-      uses: web-infra-dev/midscene-action/pages@v1
-      with:
-        artifact-name: ${{ needs.test.outputs.report-artifact-name }}
-        producer-result: ${{ needs.test.result }}
-```
-
-Expose the root Action's `report-artifact-name` as the test job output. Enable
-Settings → Pages → Source → GitHub Actions before running this job. Use a
-**dedicated** report site; deployment replaces the repository's Pages site.
-Pin both Actions to a reviewed commit that includes `pages` (the current release
-may predate it). A missing Pages configuration fails the publication job visibly.
-
-The sub-action publishes the framework-generated index and a per-case Summary
-with screenshots, status, duration and native step links. It keeps the latest
-three runs within 900 MiB; older links expire. Raw test artifacts stay unchanged.
-Missing native HTML leaves the existing site intact. Publication can still run
-after failed tests. One invocation consumes one native test-run artifact.
-
-History is accepted only from completed non-PR runs in the same repository,
-workflow and current branch, with commit ancestry verified against the current SHA.
-To retain history while moving between trusted branches, pass `history-branches`
-as an explicit comma-separated allowlist. Ancestry checks still apply.
-Do not grant this publishing job to untrusted branches or PRs. No caller-side
-report scripts, checkout or extra package installation are needed.
+After successful Cloudflare publication, the Action adds a per-case Summary table
+with screenshots, status, duration and links to the selected step in the native
+HTML report. Failed cases appear first. Missing screenshots are explicitly marked;
+no evidence is borrowed from another case. The table reads the embedded native
+report data and uses the published Worker URL for images and links.

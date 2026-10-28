@@ -101,7 +101,10 @@ async function prepare() {
       previews: {},
     }),
   );
-  await appendFile(process.env.GITHUB_OUTPUT, `directory=${directory}\n`);
+  await appendFile(
+    process.env.GITHUB_OUTPUT,
+    `directory=${directory}\nreport-file=${path.join(assets, REPORT_ENTRY_FILENAME)}\n`,
+  );
 }
 
 try {
